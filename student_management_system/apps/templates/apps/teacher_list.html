@@ -1,0 +1,189 @@
+{% extends 'apps/base.html' %}
+{% load static %}
+
+{% block title %}Teacher Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Teacher Management</h1>
+        <a href="{% url 'teacher_add' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Teacher
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Total Teachers</h6>
+                            <h2 class="mb-0">{{ teachers|length }}</h2>
+                        </div>
+                        <i class="fas fa-chalkboard-teacher fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Class Teachers</h6>
+                            <h2 class="mb-0">{{ class_teachers_count }}</h2>
+                        </div>
+                        <i class="fas fa-user-tie fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Total Subjects</h6>
+                            <h2 class="mb-0">{{ total_subjects }}</h2>
+                        </div>
+                        <i class="fas fa-book fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Avg Experience</h6>
+                            <h2 class="mb-0">{{ avg_experience }} yrs</h2>
+                        </div>
+                        <i class="fas fa-clock fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-10">
+                    <input type="text" class="form-control" name="search" placeholder="Search by name, employee ID, qualification..." value="{{ request.GET.search }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Teachers Table -->
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Teachers List</h5>
+            <span class="badge bg-light text-dark">Total: {{ teachers|length }}</span>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Employee ID</th>
+                            <th>Name</th>
+                            <th>Qualification</th>
+                            <th>Experience</th>
+                            <th>Subjects</th>
+                            <th>Phone</th>
+                            <th>Class Teacher</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for teacher in teachers %}
+                        <tr>
+                            <td><span class="badge bg-secondary">{{ teacher.employee_id }}</span></td>
+                            <td>
+                                <strong>{{ teacher.user.get_full_name }}</strong><br>
+                                <small class="text-muted">{{ teacher.user.email }}</small>
+                            </td>
+                            <td>{{ teacher.qualification }}</td>
+                            <td>{{ teacher.experience_years }} years</td>
+                            <td>
+                                {% for subject in teacher.subjects.all %}
+                                    <span class="badge bg-info">{{ subject.name }}</span>
+                                {% empty %}
+                                    <span class="badge bg-secondary">No subjects</span>
+                                {% endfor %}
+                            </td>
+                            <td>{{ teacher.phone_number }}</td>
+                            <td>
+                                {% if teacher.is_class_teacher %}
+                                    <span class="badge bg-success">Yes</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">No</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    {% if teacher.pk %}
+                                    <a href="{% url 'teacher_detail' teacher.pk %}" class="btn btn-sm btn-info" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'teacher_edit' teacher.pk %}" class="btn btn-sm btn-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'teacher_delete' teacher.pk %}" 
+                                       class="btn btn-sm btn-danger" 
+                                       title="Delete"
+                                       onclick="return confirm('Are you sure you want to delete {{ teacher.user.get_full_name }}?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">
+                                <div class="alert alert-info mb-0">
+                                    <i class="fas fa-info-circle"></i> No teachers found. 
+                                    <a href="{% url 'teacher_add' %}" class="alert-link">Click here to add your first teacher</a>.
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-hide alerts after 5 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        document.querySelectorAll('.alert').forEach(function(alert) {
+            var bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+});
+</script>
+{% endblock %}

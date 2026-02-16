@@ -1,0 +1,144 @@
+{% extends 'apps/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas {% if fee_structure %}fa-edit{% else %}fa-plus-circle{% endif %}"></i> {{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" id="feeForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="class_grade" class="form-label">Class <span class="text-danger">*</span></label>
+                                <select class="form-select" id="class_grade" name="class_grade" required>
+                                    <option value="">Select Class</option>
+                                    {% for class in classes %}
+                                    <option value="{{ class.id }}" 
+                                        {% if fee_structure.class_grade.id == class.id %}selected{% endif %}>
+                                        {{ class }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="term" class="form-label">Term <span class="text-danger">*</span></label>
+                                <select class="form-select" id="term" name="term" required>
+                                    <option value="">Select Term</option>
+                                    <option value="Term 1" {% if fee_structure.term == 'Term 1' %}selected{% endif %}>Term 1</option>
+                                    <option value="Term 2" {% if fee_structure.term == 'Term 2' %}selected{% endif %}>Term 2</option>
+                                    <option value="Annual" {% if fee_structure.term == 'Annual' %}selected{% endif %}>Annual</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-12">
+                                <h5 class="border-bottom pb-2 mb-3 mt-2">Fee Details</h5>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="tuition_fee" class="form-label">Tuition Fee (₹) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="tuition_fee" name="tuition_fee" 
+                                       value="{{ fee_structure.tuition_fee|default:'0' }}" min="0" step="0.01" required>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="library_fee" class="form-label">Library Fee (₹)</label>
+                                <input type="number" class="form-control" id="library_fee" name="library_fee" 
+                                       value="{{ fee_structure.library_fee|default:'0' }}" min="0" step="0.01">
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="sports_fee" class="form-label">Sports Fee (₹)</label>
+                                <input type="number" class="form-control" id="sports_fee" name="sports_fee" 
+                                       value="{{ fee_structure.sports_fee|default:'0' }}" min="0" step="0.01">
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="laboratory_fee" class="form-label">Laboratory Fee (₹)</label>
+                                <input type="number" class="form-control" id="laboratory_fee" name="laboratory_fee" 
+                                       value="{{ fee_structure.laboratory_fee|default:'0' }}" min="0" step="0.01">
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="transport_fee" class="form-label">Transport Fee (₹)</label>
+                                <input type="number" class="form-control" id="transport_fee" name="transport_fee" 
+                                       value="{{ fee_structure.transport_fee|default:'0' }}" min="0" step="0.01">
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="miscellaneous_fee" class="form-label">Miscellaneous Fee (₹)</label>
+                                <input type="number" class="form-control" id="miscellaneous_fee" name="miscellaneous_fee" 
+                                       value="{{ fee_structure.miscellaneous_fee|default:'0' }}" min="0" step="0.01">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="due_date" class="form-label">Due Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="due_date" name="due_date" 
+                                       value="{{ fee_structure.due_date|date:'Y-m-d'|default:today|date:'Y-m-d' }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Total Fee</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-primary text-white">₹</span>
+                                    <input type="text" class="form-control" id="total_fee" readonly value="0">
+                                </div>
+                                <small class="text-muted">Automatically calculated</small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'fee_structure_list' %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% if fee_structure %}Update{% else %}Save{% endif %} Fee Structure
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-calculate total fee
+function calculateTotal() {
+    let tuition = parseFloat(document.getElementById('tuition_fee').value) || 0;
+    let library = parseFloat(document.getElementById('library_fee').value) || 0;
+    let sports = parseFloat(document.getElementById('sports_fee').value) || 0;
+    let lab = parseFloat(document.getElementById('laboratory_fee').value) || 0;
+    let transport = parseFloat(document.getElementById('transport_fee').value) || 0;
+    let misc = parseFloat(document.getElementById('miscellaneous_fee').value) || 0;
+    
+    let total = tuition + library + sports + lab + transport + misc;
+    document.getElementById('total_fee').value = total.toFixed(2);
+}
+
+// Add event listeners to all fee inputs
+document.getElementById('tuition_fee').addEventListener('input', calculateTotal);
+document.getElementById('library_fee').addEventListener('input', calculateTotal);
+document.getElementById('sports_fee').addEventListener('input', calculateTotal);
+document.getElementById('laboratory_fee').addEventListener('input', calculateTotal);
+document.getElementById('transport_fee').addEventListener('input', calculateTotal);
+document.getElementById('miscellaneous_fee').addEventListener('input', calculateTotal);
+
+// Calculate on page load
+window.onload = calculateTotal;
+</script>
+{% endblock %}

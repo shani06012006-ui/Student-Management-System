@@ -1,0 +1,198 @@
+﻿{% extends 'apps/base.html' %}
+{% load static %}
+
+{% block title %}Fee Structure Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Fee Structure Management</h1>
+        <a href="{% url 'fee_structure_add' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Fee Structure
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Total Fee Structures</h6>
+                            <h2 class="mb-0">{{ fee_structures|length }}</h2>
+                        </div>
+                        <i class="fas fa-file-invoice fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Total Classes</h6>
+                            <h2 class="mb-0">{{ total_classes }}</h2>
+                        </div>
+                        <i class="fas fa-door-open fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Avg. Fee</h6>
+                            <h2 class="mb-0">₹{{ avg_fee|floatformat:0 }}</h2>
+                        </div>
+                        <i class="fas fa-rupee-sign fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Due This Month</h6>
+                            <h2 class="mb-0">{{ due_this_month }}</h2>
+                        </div>
+                        <i class="fas fa-calendar-times fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Options -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label for="class" class="form-label">Filter by Class</label>
+                    <select class="form-select" id="class" name="class">
+                        <option value="">All Classes</option>
+                        {% for class in classes %}
+                        <option value="{{ class.id }}" {% if request.GET.class == class.id|stringformat:"i" %}selected{% endif %}>
+                            {{ class }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label for="term" class="form-label">Filter by Term</label>
+                    <select class="form-select" id="term" name="term">
+                        <option value="">All Terms</option>
+                        <option value="Term 1" {% if request.GET.term == 'Term 1' %}selected{% endif %}>Term 1</option>
+                        <option value="Term 2" {% if request.GET.term == 'Term 2' %}selected{% endif %}>Term 2</option>
+                        <option value="Annual" {% if request.GET.term == 'Annual' %}selected{% endif %}>Annual</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter"></i> Apply
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Fee Structures Table -->
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Fee Structures</h5>
+            <span class="badge bg-light text-dark">Total: {{ fee_structures|length }}</span>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Class</th>
+                            <th>Term</th>
+                            <th>Tuition Fee</th>
+                            <th>Library Fee</th>
+                            <th>Sports Fee</th>
+                            <th>Lab Fee</th>
+                            <th>Transport</th>
+                            <th>Total</th>
+                            <th>Due Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fee in fee_structures %}
+                        <tr>
+                            <td><span class="badge bg-secondary">{{ fee.class_grade }}</span></td>
+                            <td>{{ fee.term }}</td>
+                            <td>₹{{ fee.tuition_fee }}</td>
+                            <td>₹{{ fee.library_fee }}</td>
+                            <td>₹{{ fee.sports_fee }}</td>
+                            <td>₹{{ fee.laboratory_fee }}</td>
+                            <td>₹{{ fee.transport_fee }}</td>
+                            <td><strong class="text-success">₹{{ fee.total_fee }}</strong></td>
+                            <td>
+                                {% if fee.due_date < today %}
+                                    <span class="badge bg-danger">{{ fee.due_date|date:"d M Y" }}</span>
+                                {% else %}
+                                    <span class="badge bg-info">{{ fee.due_date|date:"d M Y" }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    {% if fee.pk %}
+                                    <a href="{% url 'fee_structure_edit' fee.id %}" class="btn btn-sm btn-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'fee_structure_delete' fee.pk %}" 
+                                       class="btn btn-sm btn-danger" 
+                                       title="Delete"
+                                       onclick="return confirm('Are you sure you want to delete fee structure for {{ fee.class_grade }} - {{ fee.term }}?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center">
+                                <div class="alert alert-info mb-0">
+                                    <i class="fas fa-info-circle"></i> No fee structures found. 
+                                    <a href="{% url 'fee_structure_add' %}" class="alert-link">Click here to add your first fee structure</a>.
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-hide alerts after 5 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        document.querySelectorAll('.alert').forEach(function(alert) {
+            var bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+});
+</script>
+{% endblock %}

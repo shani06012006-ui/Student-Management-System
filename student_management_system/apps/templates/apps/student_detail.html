@@ -1,0 +1,114 @@
+﻿{% extends 'apps/base.html' %}
+{% load static %}
+
+{% block title %}{{ student.full_name }} - Student Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Student Details</h1>
+        <div>
+            <a href="{% url 'student_edit' student.pk %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'student_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Student ID:</strong> {{ student.student_id }}</p>
+                    <p><strong>Full Name:</strong> {{ student.full_name }}</p>
+                    <p><strong>Date of Birth:</strong> {{ student.date_of_birth }}</p>
+                    <p><strong>Age:</strong> {{ student.age }} years</p>
+                    <p><strong>Gender:</strong> {{ student.get_gender_display }}</p>
+                    <p><strong>Blood Group:</strong> {{ student.blood_group|default:"Not specified" }}</p>
+                    <p><strong>Nationality:</strong> {{ student.nationality }}</p>
+                    <p><strong>Religion:</strong> {{ student.religion|default:"Not specified" }}</p>
+                    <p><strong>Aadhar Number:</strong> {{ student.aadhar_number|default:"Not specified" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Academic Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Current Class:</strong> {{ student.current_class }}</p>
+                    <p><strong>Roll Number:</strong> {{ student.roll_number }}</p>
+                    <p><strong>Admission Date:</strong> {{ student.admission_date }}</p>
+                    <p><strong>Status:</strong> 
+                        {% if student.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Phone:</strong> {{ student.phone_number }}</p>
+                    <p><strong>Email:</strong> {{ student.email }}</p>
+                    <p><strong>Address:</strong> {{ student.address }}</p>
+                    <p><strong>City:</strong> {{ student.city }}</p>
+                    <p><strong>State:</strong> {{ student.state }}</p>
+                    <p><strong>Pincode:</strong> {{ student.pincode }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">Parent/Guardian Information</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Father's Details</h6>
+                    <p><strong>Name:</strong> {{ student.father_name }}</p>
+                    <p><strong>Occupation:</strong> {{ student.father_occupation|default:"Not specified" }}</p>
+                    <p><strong>Phone:</strong> {{ student.father_phone }}</p>
+                    
+                    <hr>
+                    
+                    <h6>Mother's Details</h6>
+                    <p><strong>Name:</strong> {{ student.mother_name }}</p>
+                    <p><strong>Occupation:</strong> {{ student.mother_occupation|default:"Not specified" }}</p>
+                    <p><strong>Phone:</strong> {{ student.mother_phone }}</p>
+                    
+                    {% if student.guardian_name %}
+                    <hr>
+                    <h6>Guardian's Details</h6>
+                    <p><strong>Name:</strong> {{ student.guardian_name }}</p>
+                    <p><strong>Phone:</strong> {{ student.guardian_phone }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Medical Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Allergies:</strong> {{ student.allergies|default:"None" }}</p>
+                    <p><strong>Medical Conditions:</strong> {{ student.medical_conditions|default:"None" }}</p>
+                    <p><strong>Emergency Contact:</strong> {{ student.emergency_contact }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

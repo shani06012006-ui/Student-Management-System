@@ -1,0 +1,139 @@
+{% extends 'apps/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas {% if teacher %}fa-edit{% else %}fa-plus-circle{% endif %}"></i> {{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" id="teacherForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="border-bottom pb-2 mb-3">Account Information</h5>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="username" name="username" 
+                                       value="{{ teacher.user.username|default:'' }}" {% if teacher %}readonly{% endif %} required>
+                                {% if not teacher %}
+                                <small class="text-muted">Used for login</small>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       value="{{ teacher.user.first_name|default:'' }}" required>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       value="{{ teacher.user.last_name|default:'' }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ teacher.user.email|default:'' }}" required>
+                            </div>
+                            
+                            {% if not teacher %}
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <small class="text-muted">Minimum 8 characters</small>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="col-md-12">
+                                <h5 class="border-bottom pb-2 mb-3 mt-3">Professional Information</h5>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="employee_id" class="form-label">Employee ID <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="employee_id" name="employee_id" 
+                                       value="{{ teacher.employee_id|default:'' }}" {% if teacher %}readonly{% endif %} required>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="qualification" class="form-label">Qualification <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="qualification" name="qualification" 
+                                       value="{{ teacher.qualification|default:'' }}" required>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="experience_years" class="form-label">Experience (Years)</label>
+                                <input type="number" class="form-control" id="experience_years" name="experience_years" 
+                                       value="{{ teacher.experience_years|default:'0' }}" min="0">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="phone_number" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="phone_number" name="phone_number" 
+                                       value="{{ teacher.phone_number|default:'' }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="joining_date" class="form-label">Joining Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="joining_date" name="joining_date" 
+                                       value="{{ teacher.joining_date|date:'Y-m-d'|default:today|date:'Y-m-d' }}" required>
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="address" class="form-label">Address <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="address" name="address" rows="2" required>{{ teacher.address|default:'' }}</textarea>
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="subjects" class="form-label">Subjects Taught</label>
+                                <select class="form-select" id="subjects" name="subjects" multiple size="4">
+                                    {% for subject in subjects %}
+                                    <option value="{{ subject.id }}" 
+                                        {% if subject in teacher.subjects.all %}selected{% endif %}>
+                                        {{ subject.name }} ({{ subject.code }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Hold Ctrl to select multiple subjects</small>
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="is_class_teacher" name="is_class_teacher"
+                                           {% if teacher.is_class_teacher %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_class_teacher">Is Class Teacher</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'teacher_list' %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% if teacher %}Update{% else %}Save{% endif %} Teacher
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

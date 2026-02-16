@@ -1,0 +1,80 @@
+﻿{% extends 'apps/base.html' %}
+
+{% block title %}Enter Marks - {{ exam.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Enter Marks: {{ exam.name }}</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Exam Details</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Class:</strong> {{ exam.class_grade }}</p>
+            <p><strong>Subject:</strong> {{ exam.subject }}</p>
+            <p><strong>Date:</strong> {{ exam.exam_date }}</p>
+            <p><strong>Total Marks:</strong> {{ exam.total_marks }}</p>
+            <p><strong>Passing Marks:</strong> {{ exam.passing_marks }}</p>
+        </div>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Student Marks</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Student Name</th>
+                            <th>Marks Obtained</th>
+                            <th>Grade</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ student.roll_number }}</td>
+                            <td>{{ student.full_name }}</td>
+                            <td>
+                                <input type="number" 
+                                       name="marks_{{ student.id }}" 
+                                       class="form-control form-control-sm"
+                                       min="0" 
+                                       max="{{ exam.total_marks }}"
+                                       step="0.01"
+                                       value="{% if existing_marks %}{{ existing_marks.student.marks_obtained }}{% endif %}">
+                            </td>
+                            <td>
+                                <span class="badge bg-info">
+                                    {% if existing_marks %}{{ existing_marks.student.grade }}{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <input type="text" 
+                                       name="remarks_{{ student.id }}" 
+                                       class="form-control form-control-sm"
+                                       value="{% if existing_marks %}{{ existing_marks.student.remarks }}{% endif %}">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Marks
+                </button>
+                <a href="{% url 'exam_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

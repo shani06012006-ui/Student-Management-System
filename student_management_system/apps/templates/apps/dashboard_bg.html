@@ -1,0 +1,144 @@
+{% extends 'apps/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - School Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), 
+                    url('{% static "apps/images/school-bg.jpg" %}');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+    }
+    
+    .card {
+        background-color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(5px);
+        border: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    
+    .card-header {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-bottom: 2px solid rgba(0,123,255,0.2);
+    }
+    
+    .stat-card {
+        transition: transform 0.3s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    /* For the welcome card */
+    .welcome-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(240,248,255,0.95));
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4 text-dark">School Dashboard</h1>
+    
+    
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Total Students</h6>
+                            <h2 class="mb-0">{{ total_students|default:"0" }}</h2>
+                        </div>
+                        <i class="fas fa-user-graduate fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-white bg-success stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Present Today</h6>
+                            <h2 class="mb-0">{{ present_today|default:"0" }}</h2>
+                        </div>
+                        <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-white bg-warning stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Total Teachers</h6>
+                            <h2 class="mb-0">{{ total_teachers|default:"0" }}</h2>
+                        </div>
+                        <i class="fas fa-chalkboard-teacher fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-white bg-info stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Total Classes</h6>
+                            <h2 class="mb-0">{{ total_classes|default:"0" }}</h2>
+                        </div>
+                        <i class="fas fa-door-open fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'student_add' %}" class="btn btn-primary me-2 mb-2">
+                        <i class="fas fa-user-plus"></i> Add Student
+                    </a>
+                    <a href="{% url 'mark_attendance' %}" class="btn btn-success me-2 mb-2">
+                        <i class="fas fa-calendar-check"></i> Mark Attendance
+                    </a>
+                    <a href="{% url 'exam_list' %}" class="btn btn-info me-2 mb-2">
+                        <i class="fas fa-file-alt"></i> Exams
+                    </a>
+                    <a href="{% url 'fee_structure_list' %}" class="btn btn-warning me-2 mb-2">
+                        <i class="fas fa-file-invoice"></i> Fee Structure
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card welcome-card">
+                <div class="card-body text-center">
+                    <h3 class="text-primary">Welcome to School Management System</h3>
+                    <p class="text-muted">Manage students, attendance, exams, and fees efficiently</p>
+                    <p class="text-muted small">Today is {% now "l, F j, Y" %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

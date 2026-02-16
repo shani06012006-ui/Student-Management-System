@@ -1,0 +1,141 @@
+{% extends 'apps/base.html' %}
+{% load static %}
+
+{% block title %}{{ teacher.user.get_full_name }} - Teacher Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Teacher Details</h1>
+        <div>
+            <a href="{% url 'teacher_edit' teacher.id %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'teacher_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user"></i> Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Employee ID:</th>
+                            <td><span class="badge bg-primary">{{ teacher.employee_id }}</span></td>
+                        </tr>
+                        <tr>
+                            <th>Full Name:</th>
+                            <td>{{ teacher.user.get_full_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Username:</th>
+                            <td>{{ teacher.user.username }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td>{{ teacher.user.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Phone:</th>
+                            <td>{{ teacher.phone_number }}</td>
+                        </tr>
+                        <tr>
+                            <th>Address:</th>
+                            <td>{{ teacher.address }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-graduation-cap"></i> Professional Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Qualification:</th>
+                            <td>{{ teacher.qualification }}</td>
+                        </tr>
+                        <tr>
+                            <th>Experience:</th>
+                            <td>{{ teacher.experience_years }} years</td>
+                        </tr>
+                        <tr>
+                            <th>Joining Date:</th>
+                            <td>{{ teacher.joining_date|date:"d M Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Class Teacher:</th>
+                            <td>
+                                {% if teacher.is_class_teacher %}
+                                    <span class="badge bg-success">Yes</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">No</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-book"></i> Subjects Taught</h5>
+                </div>
+                <div class="card-body">
+                    {% if teacher.subjects.all %}
+                        <div class="list-group">
+                            {% for subject in teacher.subjects.all %}
+                                <div class="list-group-item">
+                                    <i class="fas fa-book-open text-info"></i>
+                                    {{ subject.name }} ({{ subject.code }})
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No subjects assigned</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Classes Teaching Section -->
+    {% if teacher.class_teacher.exists %}
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="fas fa-door-open"></i> Classes Teaching</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for class in teacher.class_teacher.all %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>{{ class }}</h6>
+                                    <span class="badge bg-primary">Class Teacher</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

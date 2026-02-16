@@ -1,0 +1,163 @@
+﻿{% extends 'apps/base.html' %}
+{% load static %}
+
+{% block title %}Mark Attendance{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Mark Attendance</h1>
+    
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Select Class and Date</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" id="attendanceForm">
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="class_grade" class="form-label">Class <span class="text-danger">*</span></label>
+                        <select class="form-select" id="class_grade" name="class_grade" required>
+                            <option value="">Select Class</option>
+                            {% for class in classes %}
+                            <option value="{{ class.id }}">{{ class }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label for="date" class="form-label">Date <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="date" name="date" value="{{ today|date:'Y-m-d' }}" required>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-info" onclick="loadStudents()">
+                            <i class="fas fa-search"></i> Load Students
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="studentList" style="display: none;">
+                    <h5 class="mt-4">Students</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Roll No</th>
+                                    <th>Student Name</th>
+                                    <th>Attendance Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentRows">
+                                <!-- Students will be loaded here via AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Attendance
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function loadStudents() {
+    const classId = document.getElementById('class_grade').value;
+    const date = document.getElementById('date').value;
+    
+    if (!classId) {
+        alert('Please select a class');
+        return;
+    }
+    
+    if (!date) {
+        alert('Please select a date');
+        return;
+    }
+    
+    // Show loading indicator
+    document.getElementById('studentRows').innerHTML = '<tr><td colspan="3" class="text-center">Loading students...</td></tr>';
+    document.getElementById('studentList').style.display = 'block';
+    
+    // Fetch students via AJAX
+    fetch(`/api/get-students/?class_id=${classId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(students => {
+            const tbody = document.getElementById('studentRows');
+            
+            if (students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-danger">No students found in this class</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = '';
+            students.forEach(student => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${student.roll_number || 'N/A'}</td>
+                    <td>${student.first_name} ${student.last_name}</td>
+                    <td>
+                        <select name="status_${student.id}" class="form-select form-select-sm">
+                            <option value="P">Present</option>
+                            <option value="A">Absent</option>
+                            <option value="L">Late</option>
+                            <option value="S">Sick Leave</option>
+                        </select>
+                    </td>
+                `;
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('studentRows').innerHTML = '<tr><td colspan="3" class="text-center text-danger">Error loading students. Please try again.</td></tr>';
+        });
+}
+
+// Auto-load students when both class and date are selected (optional)
+document.getElementById('class_grade').addEventListener('change', function() {
+    if (this.value && document.getElementById('date').value) {
+        loadStudents();
+    }
+});
+
+document.getElementById('date').addEventListener('change', function() {
+    if (this.value && document.getElementById('class_grade').value) {
+        loadStudents();
+    }
+});
+</script>
+
+<style>
+/* Additional styles for better appearance */
+.table th {
+    background-color: #f8f9fa;
+}
+
+.form-select-sm {
+    width: auto;
+    display: inline-block;
+}
+
+#studentList {
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
+{% endblock %}
