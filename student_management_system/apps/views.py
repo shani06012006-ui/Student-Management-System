@@ -7,7 +7,7 @@ from django.utils import timezone
 from datetime import datetime, timedelta, date
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-
+from .models import Student, Teacher, Attendance, Exam, Marks, FeeStructure, FeePayment
 from .models import *
 from .forms import *
 
