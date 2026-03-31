@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from datetime import date
 
-# ✅ CLASS MODEL (Fixed with 'level' field)
 class ClassGrade(models.Model):
     CLASS_CHOICES = [
         ('PKG', 'Pre-K.G'), ('LKG', 'L.K.G'), ('UKG', 'U.K.G'),
@@ -22,7 +21,7 @@ class ClassGrade(models.Model):
         return self.get_name_display()
 
 
-# ✅ SUBJECT
+
 class Subject(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=20, unique=True)
@@ -36,7 +35,7 @@ class Subject(models.Model):
         return f"{self.name} ({self.code})"
 
 
-# ✅ STUDENT
+
 class Student(models.Model):
     BLOOD_GROUP_CHOICES = [('A+', 'A+'), ('A-', 'A-'), ('B+', 'B+'), ('B-', 'B-'), ('O+', 'O+'), ('O-', 'O-'), ('AB+', 'AB+'), ('AB-', 'AB-')]
     GENDER_CHOICES = [('M', 'Male'), ('F', 'Female'), ('O', 'Other')]
@@ -81,7 +80,6 @@ class Student(models.Model):
         return today.year - self.date_of_birth.year
 
 
-# ✅ TEACHER
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     employee_id = models.CharField(max_length=20, unique=True)
@@ -93,7 +91,6 @@ class Teacher(models.Model):
         return self.user.username
 
 
-# ✅ ATTENDANCE
 class Attendance(models.Model):
     STATUS_CHOICES = [('P', 'Present'), ('A', 'Absent')]
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -105,7 +102,6 @@ class Attendance(models.Model):
         unique_together = ['student', 'date']
 
 
-# ✅ EXAM
 class Exam(models.Model):
     name = models.CharField(max_length=100)
     class_grade = models.ForeignKey(ClassGrade, on_delete=models.CASCADE)
@@ -117,7 +113,6 @@ class Exam(models.Model):
         return self.name
 
 
-# ✅ MARKS (Removed Duplicate and Added Remarks)
 class Marks(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
@@ -128,7 +123,6 @@ class Marks(models.Model):
         unique_together = ['student', 'exam']
 
 
-# ✅ FEE STRUCTURE
 class FeeStructure(models.Model):
     class_grade = models.ForeignKey(ClassGrade, on_delete=models.CASCADE)
     academic_year = models.CharField(max_length=10)
@@ -140,7 +134,6 @@ class FeeStructure(models.Model):
         return f"Fee for {self.class_grade.name} ({self.academic_year})"
 
 
-# ✅ FEE PAYMENT
 class FeePayment(models.Model):
     PAYMENT_MODE = [('Cash', 'Cash'), ('Online', 'Online'), ('Cheque', 'Cheque')]
     student = models.ForeignKey(Student, on_delete=models.CASCADE)

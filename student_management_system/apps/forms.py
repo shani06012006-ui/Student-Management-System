@@ -2,8 +2,6 @@
 from django.contrib.auth.models import User
 from .models import *
 
-
-# ✅ STUDENT FORM
 class StudentRegistrationForm(forms.ModelForm):
     date_of_birth = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
@@ -62,7 +60,6 @@ class StudentRegistrationForm(forms.ModelForm):
         return pincode
 
 
-# ✅ TEACHER FORM (FIXED)
 class TeacherRegistrationForm(forms.ModelForm):
     first_name = forms.CharField(
         max_length=30,
@@ -112,8 +109,6 @@ class TeacherRegistrationForm(forms.ModelForm):
 
         return teacher
 
-
-# ✅ ATTENDANCE FORM
 class AttendanceForm(forms.Form):
     date = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
@@ -125,8 +120,6 @@ class AttendanceForm(forms.Form):
         empty_label="Select Class"
     )
 
-
-# ✅ MARKS FORM
 class MarksEntryForm(forms.ModelForm):
     class Meta:
         model = Marks
