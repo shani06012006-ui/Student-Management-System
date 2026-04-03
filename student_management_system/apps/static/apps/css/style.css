@@ -9,8 +9,13 @@ html, body {
     padding: 0;
     height: 100%;
 }
+main{
+    flex: 1;
+}
 
 body {
+    display: flex;
+    flex-direction: column;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     position: relative;
     background: none !important; 

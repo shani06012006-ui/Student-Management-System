@@ -1,5 +1,5 @@
 ﻿from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User 
 from .models import *
 
 class StudentRegistrationForm(forms.ModelForm):
@@ -33,9 +33,15 @@ class StudentRegistrationForm(forms.ModelForm):
             'state': forms.TextInput(attrs={'class': 'form-control'}),
             'pincode': forms.TextInput(attrs={'class': 'form-control'}),
             'father_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'father_occupation': forms.TextInput(attrs={'class': 'form-control'}), 
             'father_phone': forms.TextInput(attrs={'class': 'form-control'}),
             'mother_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'mother_occupation': forms.TextInput(attrs={'class': 'form-control'}), 
             'mother_phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'guardian_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'guardian_phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'allergies': forms.Textarea(attrs={'class': 'form-control'}),
+            'medical_conditions': forms.Textarea(attrs={'class': 'form-control'}),
             'emergency_contact': forms.TextInput(attrs={'class': 'form-control'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
@@ -78,12 +84,7 @@ class TeacherRegistrationForm(forms.ModelForm):
 
     class Meta:
         model = Teacher
-        fields = [
-            'employee_id',
-            'subjects',
-            'phone_number',
-            'joining_date'
-        ]
+        fields = '__all__'
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'subjects': forms.SelectMultiple(attrs={'class': 'form-select'}),
@@ -120,26 +121,3 @@ class AttendanceForm(forms.Form):
         empty_label="Select Class"
     )
 
-class MarksEntryForm(forms.ModelForm):
-    class Meta:
-        model = Marks
-        fields = ['student', 'exam', 'marks_obtained', 'remarks']
-        widgets = {
-            'student': forms.Select(attrs={'class': 'form-select'}),
-            'exam': forms.Select(attrs={'class': 'form-select'}),
-            'marks_obtained': forms.NumberInput(attrs={'class': 'form-control'}),
-            'remarks': forms.Textarea(attrs={'class': 'form-control'}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if 'exam' in self.data:
-            try:
-                exam_id = int(self.data.get('exam'))
-                exam = Exam.objects.get(id=exam_id)
-                self.fields['student'].queryset = Student.objects.filter(
-                    current_class=exam.class_grade
-                )
-            except:
-                pass

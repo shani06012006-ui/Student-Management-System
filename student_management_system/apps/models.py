@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
+from django.core.validators import RegexValidator
 from datetime import date
 
 class ClassGrade(models.Model):
@@ -12,29 +12,13 @@ class ClassGrade(models.Model):
     ]
 
     name = models.CharField(max_length=10, choices=CLASS_CHOICES, unique=True)
-    level = models.IntegerField(default=0) # 👈 Indha line thaan miss aachu!
+    level = models.IntegerField(default=0) 
 
     class Meta:
         ordering = ['level']
 
     def __str__(self):
         return self.get_name_display()
-
-
-
-class Subject(models.Model):
-    name = models.CharField(max_length=100)
-    code = models.CharField(max_length=20, unique=True)
-    grades = models.ManyToManyField(ClassGrade, related_name='subjects')
-    is_optional = models.BooleanField(default=False)
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return f"{self.name} ({self.code})"
-
-
 
 class Student(models.Model):
     BLOOD_GROUP_CHOICES = [('A+', 'A+'), ('A-', 'A-'), ('B+', 'B+'), ('B-', 'B-'), ('O+', 'O+'), ('O-', 'O-'), ('AB+', 'AB+'), ('AB-', 'AB-')]
@@ -54,18 +38,28 @@ class Student(models.Model):
     is_active = models.BooleanField(default=True)
     phone_number = models.CharField(max_length=15, validators=[RegexValidator(r'^\+?1?\d{9,15}$')])
     email = models.EmailField(unique=True)
-    address = models.TextField()
+    address = models.CharField(max_length=200)
     city = models.CharField(max_length=50)
     state = models.CharField(max_length=50)
     pincode = models.CharField(max_length=6)
     father_name = models.CharField(max_length=100)
     father_phone = models.CharField(max_length=15)
+    father_occupation = models.CharField(max_length=100, null=True, blank=True)
     mother_name = models.CharField(max_length=100)
     mother_phone = models.CharField(max_length=15)
+    mother_occupation = models.CharField(max_length=100, null=True, blank=True) 
+    guardian_name = models.CharField(max_length=100, null=True, blank=True)
+    guardian_phone = models.CharField(max_length=15, null=True, blank=True)
+    allergies = models.TextField(null=True, blank=True)
     emergency_contact = models.CharField(max_length=15)
+    medical_conditions = models.TextField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='students/profile/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    religion = models.CharField(max_length=51, null=True, blank=True)
+    community = models.CharField(max_length=51, null=True, blank=True)
+    caste = models.CharField(max_length=50, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True) 
 
     class Meta:
         ordering = ['current_class', 'roll_number', 'first_name']
@@ -83,44 +77,13 @@ class Student(models.Model):
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     employee_id = models.CharField(max_length=20, unique=True)
-    subjects = models.ManyToManyField(Subject)
     phone_number = models.CharField(max_length=15)
     joining_date = models.DateField()
-
+    is_class_teacher = models.BooleanField(default=False)
+    experience_years = models.PositiveIntegerField(default=0) 
+     
     def __str__(self):
         return self.user.username
-
-
-class Attendance(models.Model):
-    STATUS_CHOICES = [('P', 'Present'), ('A', 'Absent')]
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    class_grade = models.ForeignKey(ClassGrade, on_delete=models.CASCADE)
-    date = models.DateField()
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
-
-    class Meta:
-        unique_together = ['student', 'date']
-
-
-class Exam(models.Model):
-    name = models.CharField(max_length=100)
-    class_grade = models.ForeignKey(ClassGrade, on_delete=models.CASCADE)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    exam_date = models.DateField()
-    total_marks = models.IntegerField(default=100)
-
-    def __str__(self):
-        return self.name
-
-
-class Marks(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
-    marks_obtained = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
-    remarks = models.TextField(null=True, blank=True) 
-
-    class Meta:
-        unique_together = ['student', 'exam']
 
 
 class FeeStructure(models.Model):
@@ -129,7 +92,7 @@ class FeeStructure(models.Model):
     tuition_fee = models.DecimalField(max_digits=10, decimal_places=2)
     transport_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     other_fees = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-
+    due_date = models.DateField(null=True, blank=True) 
     def __str__(self):
         return f"Fee for {self.class_grade.name} ({self.academic_year})"
 
@@ -144,3 +107,4 @@ class FeePayment(models.Model):
 
     def __str__(self):
         return f"{self.student.first_name} - {self.amount_paid}"
+    
