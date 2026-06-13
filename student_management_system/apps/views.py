@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from .models import Student, Teacher
 from .models import *
 from .forms import *
+from .forms import TeacherForm
 
 
 def is_admin(user):
@@ -194,61 +195,21 @@ def teacher_list(request):
 @login_required
 def teacher_add(request):
     if request.method == 'POST':
-        try:
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            first_name = request.POST.get('first_name')
-            last_name = request.POST.get('last_name')
-            email = request.POST.get('email')
-            employee_id = request.POST.get('employee_id')
-            qualification = request.POST.get('qualification')
-            experience_years = request.POST.get('experience_years', 0)
-            phone_number = request.POST.get('phone_number')
-            address = request.POST.get('address')
-            joining_date = request.POST.get('joining_date')
-            is_class_teacher = request.POST.get('is_class_teacher') == 'on'
-            subject_ids = request.POST.getlist('subjects')
-            
-            if User.objects.filter(username=username).exists():
-                messages.error(request, f'Username "{username}" already exists!')
-                return redirect('teacher_add')
-            
-            if Teacher.objects.filter(employee_id=employee_id).exists():
-                messages.error(request, f'Employee ID "{employee_id}" already exists!')
-                return redirect('teacher_add')
-            
-            user = User.objects.create_user(
-                username=username,
-                password=password,
-                first_name=first_name,
-                last_name=last_name,
-                email=email
-            )
-            
-            teacher = Teacher.objects.create(
-                user=user,
-                employee_id=employee_id,
-                qualification=qualification,
-                experience_years=experience_years,
-                phone_number=phone_number,
-                address=address,
-                joining_date=joining_date,
-                is_class_teacher=is_class_teacher
-            )
-            
-            
-            messages.success(request, f'Teacher {first_name} {last_name} added successfully!')
+        form = TeacherForm(request.POST)
+        if form.is_valid():
+            teacher = form.save()
+            messages.success(request, f'Teacher {teacher.user.get_full_name()} added successfully!')
             return redirect('teacher_list')
-            
-        except Exception as e:
-            messages.error(request, f'Error adding teacher: {str(e)}')
-            return redirect('teacher_add')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = TeacherForm()
     
-    context = {
+    return render(request, 'apps/teacher_form.html', {
+        'form': form,
         'title': 'Add New Teacher',
-        'today': date.today(),
-    }
-    return render(request, 'apps/teacher_form.html', context)
+        'teacher': None
+    })
 
 
 @login_required

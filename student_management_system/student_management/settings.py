@@ -79,14 +79,8 @@ WSGI_APPLICATION = 'student_management.wsgi.application'
 # settings.py
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',   
-        'USER': 'postgres',
-        'PASSWORD': 'admin1234',  
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-
-        'CONN_MAX_AGE': 0,
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
