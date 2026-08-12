@@ -119,7 +119,6 @@ class TeacherForm(forms.ModelForm):
             if commit:
                 user.save()
         else:
-            # Create new user
             user = User.objects.create_user(
                 username=self.cleaned_data['username'],
                 first_name=self.cleaned_data['first_name'],
@@ -128,7 +127,6 @@ class TeacherForm(forms.ModelForm):
                 password=self.cleaned_data['password']
             )
         
-        # Create/Update teacher
         teacher = super().save(commit=False)
         teacher.user = user
         
