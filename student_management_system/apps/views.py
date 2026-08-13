@@ -24,8 +24,6 @@ def dashboard(request):
     total_teachers = Teacher.objects.count()
     total_classes = ClassGrade.objects.count()
     
- 
-    
     return render(request, 'apps/dashboard.html')
 
 

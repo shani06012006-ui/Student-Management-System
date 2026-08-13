@@ -13,7 +13,6 @@ class Subject(models.Model):
     class Meta:
         ordering = ['name']
         
-
 class ClassGrade(models.Model):
     CLASS_CHOICES = [
         ('PKG', 'Pre-K.G'), ('LKG', 'L.K.G'), ('UKG', 'U.K.G'),
@@ -161,7 +160,6 @@ class FeePayment(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.receipt_number:
-            # Generate receipt number: RCPT/YYYY/MM/XXXX
             from datetime import datetime
             year = datetime.now().strftime('%Y')
             month = datetime.now().strftime('%m')
