@@ -11,13 +11,15 @@ urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('dashboard/', views.dashboard, name='dashboard'),
     
+    
     # Student's URLs
     path('students/', views.student_list, name='student_list'),
     path('students/add/', views.student_add, name='student_add'),
     path('students/<int:pk>/', views.student_detail, name='student_detail'),
     path('students/<int:pk>/edit/', views.student_edit, name='student_edit'),
     path('students/<int:pk>/delete/', views.student_delete, name='student_delete'),
-        
+    
+    
     # Teacher's URLs
     path('teachers/', views.teacher_list, name='teacher_list'),
     path('teachers/add/', views.teacher_add, name='teacher_add'),
@@ -25,6 +27,7 @@ urlpatterns = [
     path('teachers/<int:pk>/edit/', views.teacher_edit, name='teacher_edit'),
     path('teachers/<int:pk>/delete/', views.teacher_delete, name='teacher_delete'),
     
+
     # Fee Management's URLs
     path('fee-structures/', views.fee_structure_list, name='fee_structure_list'),
     path('fee-structures/add/', views.fee_structure_add, name='fee_structure_add'),
